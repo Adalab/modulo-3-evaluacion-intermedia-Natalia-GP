@@ -1,6 +1,7 @@
 import '../styles/App.scss';
 import contacts from '../data/contacts.json';
 import {useState} from 'react';
+import ls from '../services/localstorage';
 
 function App() {
   // VARIABLES ESTADO
@@ -11,6 +12,8 @@ function App() {
     speciality: '',
     id: '',
   })
+  const [search, setSearch] = useState(ls.get('search', ''));
+  const [searchCounselor, setSearchCounselor] = useState(''); //variable estado para filtrar-buscar metiendola en localstorage
   // USEEFFECT ?
 
   // FUNCIONES HANDLER
@@ -18,6 +21,14 @@ function App() {
   const handleSubmit = (ev)=> {
     ev.preventDefault();
   }
+// función manejadora para filtrar
+  const handleSearchName = (ev)=> {
+    ls.set('search', ev.target.value);
+    setSearch(ev.target.value);
+  };
+  const handleSearchCounselor = (ev) => {
+    setSearchCounselor(ev.target.value)
+  };
 
   const handleInput = (ev) => { 
     const inputName = ev.target.name;
@@ -36,7 +47,10 @@ function App() {
     })
   }
   const renderAdalaber = () => { 
-    return adalabers.map((each)=> (
+    return adalabers
+    .filter((each) => each.name.toLowerCase().includes(search.toLowerCase()))
+    .filter((each) => each.counselor.toLowerCase().includes(searchCounselor))
+    .map((each)=> (
       <tr key={each.id}>
         <td>{each.name}</td>
         <td>{each.counselor}</td>
@@ -49,7 +63,21 @@ function App() {
 
   return (
     <div className='App'>
-      <header><h1>Adalabers</h1></header>  
+      <header><h1>Adalabers</h1>
+      <h2>Buscador de Adalabers</h2>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="searchName">Nombre:</label>
+        <input type="text" name="searchName" value={search} onChange={handleSearchName} />
+        <label htmlFor="searchCounselor">Tutora:
+          <select name="searchCounselor" id='searchCounselor' value={searchCounselor} onChange={handleSearchCounselor} >
+            <option value="">Escoge una opción</option>
+            <option value="yanelis">Yanelis</option>
+            <option value="dayana">Dayana</option>
+            <option value="iván">Iván</option>
+          </select>
+        </label>
+      </form>
+      </header>  
       <table className="table">
         {/* <!-- Fila de cabecera -->  */}
         <thead><tr>
